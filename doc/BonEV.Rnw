@@ -1,0 +1,78 @@
+%\VignetteIndexEntry{BonEV}
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,epsfig,fullpage,hyperref}
+\usepackage{underscore}
+\parindent 0in
+
+%\newcommand{\Robject}[1]{{\texttt{#1}}}
+%\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+%\newcommand{\Rpackage}[1]{{\textit{#1}}}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\title{\bf Introduction to BonEV package}
+
+\author{Dongmei Li}
+
+\maketitle
+
+\begin{center}
+Clinical and Translational Science Institute, University of Rochester School of Medicine and Dentistry, Rochester, NY 14642-0708\\
+\end{center}
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overview}
+
+This document provides an introduction to the {\tt BonEV} package. The {\tt BonEv} package calculates the adjusted P-values from user-provided raw P-values through the Bon-EV multiple testing procedure that controls the false discovery rates at user-defined level alpha. The Bon-EV multiple testing procedure is developed based on the Bonferroni procedure with integrated estimates from the Benjamini-Hochberg procedure and the Storey's q-value procedure. It controls false discovery rates through controlling the expected number of false discoveries.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Getting started}
+
+The {\tt BonEV} package can be installed and loaded through the following R code.
+
+Install the {\tt BonEV} package with:
+%code 1
+<<eval=FALSE, echo=TRUE>>=
+install.packages("BonEV")
+@
+
+Load the {\tt BonEV} package with:
+
+%code 2
+<<eval=FALSE, echo=TRUE>>=
+library(BonEV)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{{\tt Bon_EV} function}
+
+There is one function in the {\tt BonEV} package: {\tt Bon_EV}. The function requires raw P-values in the vector format and user-defined alpha level for false discovery rates control. {\tt Bon_EV} will generate adjusted P-values from the Bon-EV multiple testing procedure that is developed based on the Bonferroni procedure with integrated estimates from the Benjamini-Hochberg procedure and the Storey's q-value procedure. {\tt Bon_EV} controls false discovery rates through controlling the expected number of false discoveries.
+
+The following is an example using the {\tt Bon_EV} function. The raw P-values in the hedenfalk data set from the qvalue package are used as the input to get adjusted P-values from the Bon-EV multiple testing procedure with the false discovery rate controlled at level alpha = 0.05. Then, the adjusted P-values from the Bon-EV multiple testing procedure are compared with adjusted P-values obtained from the Benjamini-Hochberg and Storey's q-value procedures.
+
+%code 3
+<<eval=TRUE, echo=TRUE>>=
+library(qvalue)
+data(hedenfalk)
+library(BonEV)
+pvalues <- hedenfalk$p
+adjp <- Bon_EV(pvalues, 0.05)
+summary(adjp)
+results <- cbind(adjp$raw_P_value, adjp$BH_adjp, adjp$Storey_adjp, adjp$Bon_EV_adjp)
+colnames(results) <- c("raw_P_value", "BH_adjp", "Storey_adjp", "Bon_EV_adjp")
+results[1:20,]
+summary(results)
+
+##Compare with Benjami-Hochberg and Storey's q-value procedures
+sum(adjp$raw_P_value <= 0.05)
+sum(adjp$BH_adjp <= 0.05)
+sum(adjp$Storey_adjp <= 0.05)
+sum(adjp$Bon_EV_adjp <= 0.05)
+@
+
+\end{document} 
